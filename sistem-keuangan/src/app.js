@@ -1,11 +1,11 @@
 const express = require("express");
 const sequelize = require("./config/koneksi.js");
 const routeTransaksi = require("./transaksi/router.js");
+const routeUser = require("./user/router.js");
 const app = express();
 // Middleware untuk parsing JSON
 //  ini adalah tools
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.json());
 
 app.get("/", async (req, res) => {
@@ -19,6 +19,7 @@ app.get("/", async (req, res) => {
 const PORT = 3040;
 
 app.use("/api/transaksi", routeTransaksi);
+app.use("/api/user", routeUser);
 
 app.listen(PORT, () => {
   console.log(`Server berjalan... di http://localhost:${PORT}`);

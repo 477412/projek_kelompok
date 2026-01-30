@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Transaksi.belongsTo(models.User, {
         foreignKey: "userId",
-        as: "user"
-      })
+        as: "user",
+      });
     }
   }
   Transaksi.init(
@@ -34,6 +34,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("pemasukan", "pengeluaran"),
         allowNull: false,
       },
+      bukti_transaksi: {
+        type: DataTypes.STRING,
+      },
       tgl: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -45,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Transaksi",
-      tableName: "transaksi"
+      tableName: "transaksi",
     },
   );
   return Transaksi;
