@@ -21,8 +21,8 @@ module.exports = {
         type: Sequelize.ENUM("pemasukan", "pengeluaran"),
         allowNull: false,
       },
-      bukti: {
-        type: Sequelize.STRING
+      bukti_transaksi: {
+        type: Sequelize.STRING,
       },
       tgl: {
         type: Sequelize.DATE,

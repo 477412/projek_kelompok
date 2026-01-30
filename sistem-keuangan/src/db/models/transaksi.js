@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("pemasukan", "pengeluaran"),
         allowNull: false,
       },
-      bukti: {
+      bukti_transaksi: {
         type: DataTypes.STRING,
       },
       tgl: {
