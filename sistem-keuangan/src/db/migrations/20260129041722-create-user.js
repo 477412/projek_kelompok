@@ -9,9 +9,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      role: {
-        type: Sequelize.ENUM("anggota", "bendahara"),
-        defaultValue: "anggota",
+      role:{
+        type:Sequelize.ENUM("anggota", "bendahara"),
+        defaultValue: "anggota"
       },
       nama: {
         type: Sequelize.STRING(50),
