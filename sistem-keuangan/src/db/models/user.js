@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       role: {
-        type: DataTypes.ENUM("anggota, bendahara"),
+        type: DataTypes.ENUM("anggota", "bendahara"),
         defaultValue: "anggota",
       },
       nama: {

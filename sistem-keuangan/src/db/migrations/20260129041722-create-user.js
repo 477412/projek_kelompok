@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       role:{
-        type:Sequelize.ENUM("anggota, bendahara"),
+        type:Sequelize.ENUM("anggota", "bendahara"),
         defaultValue: "anggota"
       },
       nama: {
