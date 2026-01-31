@@ -37,6 +37,7 @@ const getTransaksiById = async (req, res) => {
 const createTransaksi = async (req, res) => {
   try {
     const { userId, nominal, status, tgl, keterangan } = req.body;
+
     let bukti_transaksi = null;
     if (req.file) {
       bukti_transaksi = path.basename(req.file.path);

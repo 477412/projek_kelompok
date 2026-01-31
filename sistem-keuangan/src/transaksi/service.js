@@ -7,7 +7,19 @@ const findAllTransaksi = async () => {
 };
 
 const findTransaksiById = async (id) => {
-  return await Transaksi.findByPk(id);
+  const transaksiUser = await Transaksi.findOne({
+    where: { id },
+    include: [
+      {
+        association: "user",
+        attributes: ["id", "nama", "email", "role"],
+        where: {
+          role: "anggota",
+        },
+      },
+    ],
+  });
+  return transaksiUser;
 };
 
 const addTransaksi = async (body) => {
