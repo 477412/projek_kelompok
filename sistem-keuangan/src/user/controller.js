@@ -8,6 +8,7 @@ const {
 } = require("./service.js");
 const bcrypt = require("bcrypt");
 
+
 const getAllUser = async (req, res) => {
   try {
     const data = await findAllUser();

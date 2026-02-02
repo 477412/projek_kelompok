@@ -1,6 +1,8 @@
 const { where } = require("sequelize");
 const db = require("../db/models");
 const { User } = db;
+const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
 
 const findAllUser = async () => {
   return await User.findAll();
