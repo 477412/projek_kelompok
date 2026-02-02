@@ -5,6 +5,7 @@ const {
   createTransaksi,
   removeTransaksi,
   changeDataTransaksi,
+  nominalAllTransaksi,
 } = require("./controller");
 const router = express.Router();
 const upload = require("../shared/middlewares/upload.js");
@@ -12,8 +13,17 @@ const {
   cekIdTransaksi,
   cekBodyTransaksi,
 } = require("../shared/middlewares/valTransaksi.js");
+const {
+  authJwt,
+  authorizeRole,
+} = require("../shared/middlewares/loginAuth.js");
 
-router.get("/", getAllTransaksi);
+router.get(
+  "/bendahara/alldata",
+  authJwt,
+  authorizeRole("bendahara"),
+  getAllTransaksi,
+);
 router.get("/cari/:id", cekIdTransaksi, getTransaksiById);
 router.post(
   "/tambah",
@@ -29,5 +39,7 @@ router.patch(
   cekBodyTransaksi,
   changeDataTransaksi,
 );
+
+router.get("/total/dana", nominalAllTransaksi);
 
 module.exports = router;

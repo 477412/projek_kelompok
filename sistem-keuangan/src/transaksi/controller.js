@@ -22,6 +22,7 @@ const getTransaksiById = async (req, res) => {
   try {
     const id = req.params.id;
     const data = await findTransaksiById(id);
+
     return resSuccess(
       res,
       200,
@@ -94,10 +95,28 @@ const changeDataTransaksi = async (req, res) => {
   }
 };
 
+const nominalAllTransaksi = async (req, res) => {
+  try {
+    const all = await findAllTransaksi();
+    const nominal = all.map((n) => n.nominal);
+    const total = nominal.reduce((acc, curr) => acc + curr, 0);
+    return resSuccess(
+      res,
+      200,
+      "success",
+      "Total dana koperasi saat ini adalah",
+      "Rp" + total,
+    );
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
 module.exports = {
   getAllTransaksi,
   getTransaksiById,
   createTransaksi,
   removeTransaksi,
   changeDataTransaksi,
+  nominalAllTransaksi,
 };

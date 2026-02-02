@@ -5,6 +5,7 @@ const routeTransaksi = require("./transaksi/router.js");
 const routeUser = require("./user/router.js");
 const app = express();
 
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.get("/", async (req, res) => {
