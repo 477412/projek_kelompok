@@ -1,4 +1,8 @@
-const { findUserById } = require("../../user/service.js");
+const {
+  findUserById,
+  findByRole,
+  sortByNama,
+} = require("../../user/service.js");
 const { resFailed } = require("../helpers/payload.js");
 
 const cekId = async (req, res, next) => {
@@ -34,4 +38,30 @@ const cekUpdate = async (req, res, next) => {
   next();
 };
 
-module.exports = { cekId, cekTambah, cekUpdate };
+const cekRole = async (req, res, next) => {
+  const { role } = req.query;
+  const data = await findByRole(role);
+
+  if (data.length === 0) {
+    return resFailed(res, 500, "error", "Data tidak ditemukan");
+  }
+  if (!role) {
+    return resFailed(res, 500, "error", "Query Wajib di isi");
+  }
+  next();
+};
+
+const cekSort = async (req, res, next) => {
+  const { order } = req.query;
+  const sort = ["asc", "desc"];
+
+  if (!order) {
+    return resFailed(res, 500, "error", "Query Wajib di isi");
+  }
+  if (!sort.includes(order.toLowerCase())) {
+    return resFailed(res, 500, "error", "Query Wajib di isi dengan ASC DESC");
+  }
+  next();
+};
+
+module.exports = { cekId, cekTambah, cekUpdate, cekRole, cekSort };

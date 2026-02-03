@@ -5,9 +5,11 @@ const {
   createUser,
   updateUser,
   deleteUser,
+  findByRole,
+  sortByNama,
+  sortByEmail,
 } = require("./service.js");
 const bcrypt = require("bcrypt");
-
 
 const getAllUser = async (req, res) => {
   try {
@@ -57,7 +59,6 @@ const ubahUser = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // const oldData = await findUserById(id);
     const body = {
       role,
       nama,
@@ -85,10 +86,50 @@ const hapusUser = async (req, res) => {
   }
 };
 
+const cariByRole = async (req, res) => {
+  try {
+    const { role } = req.query;
+    const cari = await findByRole(role);
+    const data = await cari;
+    return resSuccess(res, 200, "success", "Data berhasil diambil", data);
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const urutBynama = async (req, res) => {
+  try {
+    const { order } = req.query;
+    const low = order.toLowerCase()
+    const data = await sortByNama(low);
+    return resSuccess(res, 200, "success", "Sort data by Nama", data);
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const urutByEmail = async (req, res) => {
+  try {
+    const { order } = req.query;
+    const low = order.toLowerCase()
+    const data = await sortByEmail(low);
+    return resSuccess(res, 200, "success", "Sort data by Email", data);
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+// tmbah* cari per role #
+// sort by nama dan email
+// opsional refesh token
+//
+
 module.exports = {
   getAllUser,
   getUserById,
   hapusUser,
   tambahUser,
+  cariByRole,
   ubahUser,
+  urutBynama,
+  urutByEmail
 };
