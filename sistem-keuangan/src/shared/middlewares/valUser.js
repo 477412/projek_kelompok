@@ -4,6 +4,9 @@ const {
   sortByNama,
 } = require("../../user/service.js");
 const { resFailed } = require("../helpers/payload.js");
+const db = require("../../db/models");
+const { where } = require("sequelize");
+const { User } = db;
 
 const cekId = async (req, res, next) => {
   const id = req.params.id;
@@ -19,6 +22,12 @@ const cekTambah = async (req, res, next) => {
   const { role, nama, password, email } = req.body;
   if (role === "" || nama === "" || password === "" || email === "") {
     return resFailed(res, 500, "error", "Mohon isi Role,Nama,Password,Email");
+  }
+
+  const emailUnik = await User.findOne({ where: { email } });
+
+  if (emailUnik) {
+    return resFailed(res, 500, "error", "Email sudah terdaftar");
   }
 
   next();
