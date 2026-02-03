@@ -1,9 +1,20 @@
 const { where } = require("sequelize");
 const db = require("../db/models");
-const { Transaksi, User } = db;
+const { Transaksi } = db;
 
 const findAllTransaksi = async () => {
   return await Transaksi.findAll();
+};
+
+const findAllTransaksiPemasukan = async () => {
+  return await Transaksi.findAll({
+    where: { status: "pemasukan" },
+  });
+};
+const findAllTransaksiPengeluaran = async () => {
+  return await Transaksi.findAll({
+    where: { status: "pengeluaran" },
+  });
 };
 
 const findTransaksiById = async (id) => {
@@ -13,9 +24,6 @@ const findTransaksiById = async (id) => {
       {
         association: "user",
         attributes: ["id", "nama", "email", "role"],
-        where: {
-          role: "anggota",
-        },
       },
     ],
   });
@@ -35,10 +43,26 @@ const updateTransaksi = async (id, body) => {
   return data.update(body);
 };
 
+const sortingTransaksi = async (sortBy) => {
+  return await Transaksi.findAll({
+    order: [["tgl", sortBy]],
+  });
+};
+
+const searchTransaksiByStatus = async (status) => {
+  return await Transaksi.findAll({
+    where: { status },
+  });
+};
+
 module.exports = {
   findAllTransaksi,
   findTransaksiById,
   addTransaksi,
   deleteTransaksi,
   updateTransaksi,
+  sortingTransaksi,
+  searchTransaksiByStatus,
+  findAllTransaksiPengeluaran,
+  findAllTransaksiPemasukan,
 };

@@ -41,20 +41,24 @@ const valLog = async (req, res, next) => {
 };
 
 const authJwt = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  try {
+    const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return resFailed(res, 401, "error", "Token tidak ditemukan");
+    if (!authHeader) {
+      return resFailed(res, 401, "error", "Token kosong");
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return resFailed(res, 401, "error", "Token tidak valid");
+    }
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return resFailed(res, 500, "error", "Token kadaluarsa, harap login lagi");
   }
-
-  const token = authHeader.split(" ")[1];
-
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  if (!decoded) {
-    return resFailed(res, 401, "error", "Token tidak valid");
-  }
-  req.user = decoded;
-  next();
 };
 
 const authorizeRole = (...roles) => {

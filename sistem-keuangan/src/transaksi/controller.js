@@ -4,10 +4,17 @@ const {
   findTransaksiById,
   addTransaksi,
   updateTransaksi,
+  sortingTransaksi,
+  searchTransaksiByStatus,
+  findAllTransaksiPengeluaran,
+  findAllTransaksiPemasukan,
 } = require("./service.js");
 
 const path = require("path");
 const fs = require("fs");
+const {
+  cekQuerySearchByStatus,
+} = require("../shared/middlewares/valTransaksi.js");
 
 const getAllTransaksi = async (req, res) => {
   try {
@@ -82,6 +89,7 @@ const changeDataTransaksi = async (req, res) => {
     if (req.file) {
       bukti_transaksi = path.basename(req.file.path);
     }
+    console.log(bukti_transaksi);
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
@@ -97,15 +105,137 @@ const changeDataTransaksi = async (req, res) => {
 
 const nominalAllTransaksi = async (req, res) => {
   try {
-    const all = await findAllTransaksi();
-    const nominal = all.map((n) => n.nominal);
-    const total = nominal.reduce((acc, curr) => acc + curr, 0);
+    const keluar = await findAllTransaksiPengeluaran();
+    const masuk = await findAllTransaksiPemasukan();
+    const totalDanaMasuk = masuk.map((n) => n.nominal);
+    const totalDanaKeluar = keluar.map((n) => n.nominal);
+    const totalMasuk = totalDanaMasuk.reduce((acc, curr) => acc + curr, 0);
+    const totalKeluar = totalDanaKeluar.reduce((acc, curr) => acc + curr, 0);
+    const total = totalMasuk - totalKeluar;
     return resSuccess(
       res,
       200,
       "success",
-      "Total dana koperasi saat ini adalah",
-      "Rp" + total,
+      "Total dana koperasi saat ini adalah " + "Rp" + total,
+    );
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const sortTransaksiByDate = async (req, res) => {
+  try {
+    const { sortBy } = req.query;
+    const lowering = sortBy.toLowerCase();
+    let kondisi = "";
+    if (lowering === "asc") {
+      kondisi = "Terlama";
+    } else if (lowering === "desc") {
+      kondisi = "Terbaru";
+    }
+    const data = await sortingTransaksi(lowering);
+    return resSuccess(
+      res,
+      200,
+      "error",
+      `Data transaksi dari data ${kondisi}`,
+      data,
+    );
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const filterTransaksiByStatus = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const lowering = status.toLowerCase();
+    const data = await searchTransaksiByStatus(lowering);
+    return resSuccess(res, 200, "success", `Data ${lowering} transaksi`, data);
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const createTransaksiAnggota = async (req, res) => {
+  try {
+    const { userId, nominal, tgl, keterangan } = req.body;
+
+    let bukti_transaksi = null;
+    if (req.file) {
+      bukti_transaksi = path.basename(req.file.path);
+    }
+
+    const body = {
+      userId,
+      nominal,
+      status: "pemasukan",
+      bukti_transaksi,
+      tgl,
+      keterangan,
+    };
+    const data = await addTransaksi(body);
+    return resSuccess(res, 201, "success", "Transaksi berhasil", data);
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const withdrawMoney = async (req, res) => {
+  try {
+    const nominal = parseInt(req.body.nominal);
+    const { userId, tgl, keterangan } = req.body;
+    let bukti_transaksi = null;
+    if (req.file) {
+      bukti_transaksi = path.basename(req.file.path);
+    }
+    const currTransaksi = {
+      userId,
+      nominal,
+      status: "pengeluaran",
+      bukti_transaksi,
+      tgl,
+      keterangan,
+    };
+    const data = await addTransaksi(currTransaksi);
+    return resSuccess(
+      res,
+      200,
+      "success",
+      `Berhasil withdraw sebesar ${nominal}`,
+      data,
+    );
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const showDataPengeluaran = async (req, res) => {
+  try {
+    const keluar = await findAllTransaksiPengeluaran();
+    const totalDanaKeluar = keluar.map((n) => n.nominal);
+    const totalKeluar = totalDanaKeluar.reduce((acc, curr) => acc + curr, 0);
+    return resSuccess(
+      res,
+      200,
+      "success",
+      "Total pengeluaran bulan ini adalah Rp" + totalKeluar,
+    );
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const showDataPemasukan = async (req, res) => {
+  try {
+    const masuk = await findAllTransaksiPemasukan();
+    const totalDanaMasuk = masuk.map((n) => n.nominal);
+    const totalMasuk = totalDanaMasuk.reduce((acc, curr) => acc + curr, 0);
+    return resSuccess(
+      res,
+      200,
+      "success",
+      "Total pemasukan bulan ini adalah Rp" + totalMasuk,
     );
   } catch (error) {
     return resFailed(res, 500, "error", error.message);
@@ -119,4 +249,10 @@ module.exports = {
   removeTransaksi,
   changeDataTransaksi,
   nominalAllTransaksi,
+  sortTransaksiByDate,
+  filterTransaksiByStatus,
+  createTransaksiAnggota,
+  withdrawMoney,
+  showDataPemasukan,
+  showDataPengeluaran,
 };

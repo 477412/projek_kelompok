@@ -1,10 +1,12 @@
+require("dotenv").config();
+process.env.TZ = "Asia/Jakarta";
+
 const express = require("express");
 
 const sequelize = require("./config/koneksi.js");
 const routeTransaksi = require("./transaksi/router.js");
 const routeUser = require("./user/router.js");
 const app = express();
-
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
