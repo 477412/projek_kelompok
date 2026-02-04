@@ -4,10 +4,6 @@ const loginAuth = async (req, res) => {
   try {
     const data = {
       token: req.token,
-      user: {
-        id: req.user.id,
-        email: req.user.email,
-      },
     };
     return resSuccess(res, 200, "success", "Berhasil login", data);
   } catch (error) {
