@@ -91,7 +91,17 @@ router.post(
   cekWithdraw,
   withdrawMoney,
 );
-router.get("/pemasukan", showDataPemasukan);
-router.get("/pengeluaran", showDataPengeluaran);
+router.get(
+  "/pemasukan",
+  authJwt,
+  authorizeRole("bendahara"),
+  showDataPemasukan,
+);
+router.get(
+  "/pengeluaran",
+  authJwt,
+  authorizeRole("bendahara"),
+  showDataPengeluaran,
+);
 
 module.exports = router;
