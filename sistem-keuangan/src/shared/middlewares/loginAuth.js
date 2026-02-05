@@ -14,7 +14,6 @@ const valLog = async (req, res, next) => {
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
-  console.log(isMatch);
 
   if (!isMatch) {
     return resFailed(res, 401, "error", "Email atau password salah");
@@ -41,7 +40,6 @@ const valLog = async (req, res, next) => {
   req.user = body;
   req.token = token;
 
-  console.log(req.token);
 
   next();
 };
@@ -57,10 +55,13 @@ const authJwt = (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded + "kkk");
+    
     if (!decoded) {
       return resFailed(res, 401, "error", "Token tidak valid");
     }
     req.user = decoded;
+    console.log(req.user);
     next();
   } catch (error) {
     return resFailed(res, 500, "error", "Token kadaluarsa, harap login lagi");
@@ -76,6 +77,7 @@ const authorizeRole = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return resFailed(res, 403, "error", "Anda tidak memiliki hak akses");
     }
+console.log(req.user);
 
     next();
   };

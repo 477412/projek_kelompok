@@ -8,6 +8,7 @@ const {
   findByRole,
   sortByNama,
   sortByEmail,
+  regUser,
 } = require("./service.js");
 const bcrypt = require("bcrypt");
 
@@ -47,6 +48,27 @@ const tambahUser = async (req, res) => {
     const data = await createUser(body);
 
     return resSuccess(res, 200, "success", "Data berhasil ditambahkan", data);
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const regisUser = async (req, res) => {
+  try {
+    const { nama, password, email } = req.body;
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const boda = {
+      role: "anggota",
+      nama,
+      password: hashedPassword,
+      email,
+    };
+
+    const data = await regUser(boda);
+
+    return resSuccess(res, 200, "success", "Data berhasil diregister", data);
   } catch (error) {
     return resFailed(res, 500, "error", error.message);
   }
@@ -100,7 +122,7 @@ const cariByRole = async (req, res) => {
 const urutBynama = async (req, res) => {
   try {
     const { order } = req.query;
-    const low = order.toLowerCase()
+    const low = order.toLowerCase();
     const data = await sortByNama(low);
     return resSuccess(res, 200, "success", "Sort data by Nama", data);
   } catch (error) {
@@ -111,7 +133,7 @@ const urutBynama = async (req, res) => {
 const urutByEmail = async (req, res) => {
   try {
     const { order } = req.query;
-    const low = order.toLowerCase()
+    const low = order.toLowerCase();
     const data = await sortByEmail(low);
     return resSuccess(res, 200, "success", "Sort data by Email", data);
   } catch (error) {
@@ -131,5 +153,6 @@ module.exports = {
   cariByRole,
   ubahUser,
   urutBynama,
-  urutByEmail
+  urutByEmail,
+  regisUser,
 };

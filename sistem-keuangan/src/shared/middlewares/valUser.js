@@ -33,6 +33,21 @@ const cekTambah = async (req, res, next) => {
   next();
 };
 
+const cekReg = async (req, res, next) => {
+  const { nama, password, email } = req.body;
+  if (nama === "" || password === "" || email === "") {
+    return resFailed(res, 500, "error", "Mohon isi Role,Nama,Password,Email");
+  }
+
+  const emailUnik = await User.findOne({ where: { email } });
+
+  if (emailUnik) {
+    return resFailed(res, 500, "error", "Email sudah terdaftar");
+  }
+
+  next();
+};
+
 const cekUpdate = async (req, res, next) => {
   const id = req.params.id;
   const data = await findUserById(id);
@@ -45,6 +60,42 @@ const cekUpdate = async (req, res, next) => {
     return resFailed(res, 500, "error", "Mohon isi Role,Nama,Password,Email");
   }
   next();
+};
+
+const cekHapus = async (req, res, next) => {
+  const id = req.params.id;
+  const cek = req.user;
+
+  const data = await findUserById(id);
+
+  if (data === null) {
+    return resFailed(res, 500, "error", "Data tidak ditemukan");
+  }
+
+  if (cek.role === "bendahara") {
+    if (data.role === "bendahara") {
+      return resFailed(
+        res,
+        500,
+        "error",
+        "Anda tidak bisa menghapus bendahara lain",
+      );
+    }
+    return next();
+  }
+
+  if (cek.role === "anggota") {
+    if (cek.id !== data.id) {
+      return resFailed(
+        res,
+        500,
+        "error",
+        "Anda tidak bisa menghapus anggota lain",
+      );
+    }
+
+    return next();
+  }
 };
 
 const cekRole = async (req, res, next) => {
@@ -73,4 +124,12 @@ const cekSort = async (req, res, next) => {
   next();
 };
 
-module.exports = { cekId, cekTambah, cekUpdate, cekRole, cekSort };
+module.exports = {
+  cekId,
+  cekTambah,
+  cekUpdate,
+  cekRole,
+  cekSort,
+  cekReg,
+  cekHapus,
+};

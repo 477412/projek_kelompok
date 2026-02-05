@@ -11,7 +11,7 @@ const {
   withdrawMoney,
   showDataPemasukan,
   showDataPengeluaran,
-} = require("./controller");
+} = require("./controller.js");
 const router = express.Router();
 const upload = require("../shared/middlewares/upload.js");
 const {

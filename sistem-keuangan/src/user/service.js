@@ -13,6 +13,9 @@ const findUserById = async (id) => {
 const createUser = async (body) => {
   return await User.create(body);
 };
+const regUser = async (body) => {
+  return await User.create(body);
+};
 
 const updateUser = async (id, body) => {
   return await User.update(body, { where: { id } });
@@ -46,4 +49,5 @@ module.exports = {
   findByRole,
   sortByNama,
   sortByEmail,
+  regUser,
 };
