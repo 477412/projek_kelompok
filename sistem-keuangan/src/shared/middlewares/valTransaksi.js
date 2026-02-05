@@ -31,14 +31,6 @@ const cekIdTransaksi = async (req, res, next) => {
   next();
 };
 
-const cekBodyTransaksi = async (req, res, next) => {
-  const id = req.params.id;
-  const { userId, nominal, status, tgl, keterangan } = req.body;
-  const findUserId = await findAllUser();
-  const carii = findUserId.find((data) => data.id === userId);
-  next();
-};
-
 const cekQuerySort = async (req, res, next) => {
   const { sortBy } = req.query;
   const lowering = sortBy.toLowerCase();
@@ -154,7 +146,6 @@ const cekDepo = async (req, res, next) => {
 
 module.exports = {
   cekIdTransaksi,
-  cekBodyTransaksi,
   cekQuerySort,
   cekQuerySearchByStatus,
   cekWithdraw,

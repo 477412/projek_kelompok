@@ -260,7 +260,7 @@ const infoDepositById = async (req, res) => {
       "success",
       "Data riwayat transaksi user dengan id " + id,
       {
-        Nominal: totalDanaUser,
+        nominal: totalDanaUser,
         riwayat_transaksi: filterTransaksi,
       },
     );

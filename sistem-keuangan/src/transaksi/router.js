@@ -107,6 +107,12 @@ router.get(
   authorizeRole("bendahara"),
   showDataPengeluaran,
 );
-router.get("/riwayat/user/:id", cekId, infoDepositById);
+router.get(
+  "/riwayat/user/:id",
+  cekId,
+  authJwt,
+  authorizeRole("bendahara", "anggota"),
+  infoDepositById,
+);
 
 module.exports = router;
