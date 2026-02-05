@@ -9,6 +9,8 @@ const {
   findAllTransaksiPengeluaran,
   findAllTransaksiPemasukan,
   deleteTransaksi,
+  searchTransaksiByUserId,
+  searchTransaksiByUserIdPengeluaran,
 } = require("./service.js");
 
 const path = require("path");
@@ -16,6 +18,7 @@ const fs = require("fs");
 const {
   cekQuerySearchByStatus,
 } = require("../shared/middlewares/valTransaksi.js");
+const { findUserById } = require("../user/service.js");
 
 const getAllTransaksi = async (req, res) => {
   try {
@@ -43,22 +46,6 @@ const getTransaksiById = async (req, res) => {
   }
 };
 
-const createTransaksi = async (req, res) => {
-  try {
-    const { userId, nominal, status, tgl, keterangan } = req.body;
-
-    let bukti_transaksi = null;
-    if (req.file) {
-      bukti_transaksi = path.basename(req.file.path);
-    }
-    const body = { userId, nominal, status, bukti_transaksi, tgl, keterangan };
-    const data = await addTransaksi(body);
-    return resSuccess(res, 201, "success", "Transaksi berhasil", data);
-  } catch (error) {
-    return resFailed(res, 500, "error", error.message);
-  }
-};
-
 const removeTransaksi = async (req, res) => {
   try {
     const id = req.params.id;
@@ -80,9 +67,10 @@ const removeTransaksi = async (req, res) => {
 const changeDataTransaksi = async (req, res) => {
   try {
     const id = req.params.id;
-    const { userId, nominal, status, tgl, keterangan } = req.body;
+    const { nominal, status, tgl, keterangan } = req.body;
     const findData = await findTransaksiById(id);
     const photos = findData.dataValues.bukti_transaksi;
+    const userId = req.user.id;
 
     const filePath = path.join(process.cwd(), "src", "upload", photos);
 
@@ -117,7 +105,8 @@ const nominalAllTransaksi = async (req, res) => {
       res,
       200,
       "success",
-      "Total dana koperasi saat ini adalah " + "Rp" + total,
+      "Total dana koperasi saat ini",
+      total,
     );
   } catch (error) {
     return resFailed(res, 500, "error", error.message);
@@ -161,7 +150,8 @@ const filterTransaksiByStatus = async (req, res) => {
 const createTransaksiAnggota = async (req, res) => {
   try {
     const { nominal, tgl, keterangan } = req.body;
-    const userId = req.user.body.id
+    const userId = req.user.id;
+
     let bukti_transaksi = null;
     if (req.file) {
       bukti_transaksi = path.basename(req.file.path);
@@ -185,7 +175,9 @@ const createTransaksiAnggota = async (req, res) => {
 const withdrawMoney = async (req, res) => {
   try {
     const nominal = parseInt(req.body.nominal);
-    const { userId, tgl, keterangan } = req.body;
+    const { tgl, keterangan } = req.body;
+    const userId = req.user.id;
+
     let bukti_transaksi = null;
     if (req.file) {
       bukti_transaksi = path.basename(req.file.path);
@@ -220,7 +212,8 @@ const showDataPengeluaran = async (req, res) => {
       res,
       200,
       "success",
-      "Total pengeluaran bulan ini adalah Rp" + totalKeluar,
+      "Total pengeluaran bulan ini adalah Rp",
+      totalKeluar,
     );
   } catch (error) {
     return resFailed(res, 500, "error", error.message);
@@ -236,7 +229,40 @@ const showDataPemasukan = async (req, res) => {
       res,
       200,
       "success",
-      "Total pemasukan bulan ini adalah Rp" + totalMasuk,
+      "Total pemasukan bulan ini",
+      totalMasuk,
+    );
+  } catch (error) {
+    return resFailed(res, 500, "error", error.message);
+  }
+};
+
+const infoDepositById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const filterTransaksimasuk = await searchTransaksiByUserId(id);
+    const filterTransaksikeluar = await searchTransaksiByUserIdPengeluaran(id);
+    const danaTransaksiMasuk = filterTransaksimasuk.map(
+      (trans) => trans.nominal,
+    );
+    const danaTransaksiKeluar = filterTransaksikeluar.map(
+      (trans) => trans.nominal,
+    );
+    const masuk = danaTransaksiMasuk.reduce((acc, curr) => acc + curr, 0);
+    const keluar = danaTransaksiKeluar.reduce((acc, curr) => acc + curr, 0);
+
+    const filterTransaksi = await searchTransaksiByUserId(id);
+
+    const totalDanaUser = masuk - keluar;
+    return resSuccess(
+      res,
+      200,
+      "success",
+      "Data riwayat transaksi user dengan id " + id,
+      {
+        Nominal: totalDanaUser,
+        riwayat_transaksi: filterTransaksi,
+      },
     );
   } catch (error) {
     return resFailed(res, 500, "error", error.message);
@@ -246,7 +272,6 @@ const showDataPemasukan = async (req, res) => {
 module.exports = {
   getAllTransaksi,
   getTransaksiById,
-  createTransaksi,
   removeTransaksi,
   changeDataTransaksi,
   nominalAllTransaksi,
@@ -256,4 +281,5 @@ module.exports = {
   withdrawMoney,
   showDataPemasukan,
   showDataPengeluaran,
+  infoDepositById,
 };

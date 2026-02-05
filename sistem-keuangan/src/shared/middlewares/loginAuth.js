@@ -14,7 +14,6 @@ const valLog = async (req, res, next) => {
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
-  console.log(isMatch);
 
   if (!isMatch) {
     return resFailed(res, 401, "error", "Email atau password salah");
@@ -31,6 +30,8 @@ const valLog = async (req, res, next) => {
       expiresIn: "1h",
     },
   );
+
+  console.log(token);
 
   // benerin ini
   const body = {

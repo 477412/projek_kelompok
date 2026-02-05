@@ -1,8 +1,8 @@
 const {
   findTransaksiById,
-  findAllTransaksi,
   findAllTransaksiPengeluaran,
   findAllTransaksiPemasukan,
+  searchTransaksiByUserIdPemasukan,
 } = require("../../transaksi/service");
 const db = require("../../db/models");
 const { resFailed } = require("../helpers/payload");
@@ -20,7 +20,12 @@ const cekIdTransaksi = async (req, res, next) => {
   console.log(cekId);
 
   if (!cekId) {
-    return resFailed(res, 404, "error", "Data tidak ditemukan");
+    return resFailed(
+      res,
+      404,
+      "error",
+      "Data dengan id " + id + " tidak ditemukan",
+    );
   }
 
   next();
@@ -87,9 +92,23 @@ const cekQuerySearchByStatus = async (req, res, next) => {
 };
 
 const cekWithdraw = async (req, res, next) => {
-  const { userId, nominal, tgl, keterangan } = req.body;
+  const { nominal, tgl, keterangan } = req.body;
+  const userId = req.user.id;
+
+  const filterTransaksi = await searchTransaksiByUserIdPemasukan(userId);
+  const danaTransaksi = filterTransaksi.map((trans) => trans.nominal);
+  const totalDanaUser = danaTransaksi.reduce((acc, curr) => acc + curr, 0);
 
   const bukti_transaksi = req.file;
+
+  if (totalDanaUser < 100000) {
+    return resFailed(
+      res,
+      500,
+      "error",
+      "Mohon maaf, total nominal transaksi deposit anda belum mencapai Rp100000, tidak dapat withdraw",
+    );
+  }
   if (!bukti_transaksi) {
     return resFailed(res, 500, "error", "mohon sertakan bukti transaksi");
   }
@@ -117,10 +136,8 @@ const cekWithdraw = async (req, res, next) => {
   const totalMasuk = totalDanaMasuk.reduce((acc, curr) => acc + curr, 0);
   const totalKeluar = totalDanaKeluar.reduce((acc, curr) => acc + curr, 0);
   const total = totalMasuk - totalKeluar;
-  console.log(totalKeluar);
-  console.log(totalMasuk);
 
-  if (nominal > totalMasuk) {
+  if (nominal > total) {
     return resFailed(res, 400, "error", "Dana koperasi tidak cukup");
   }
   if (nominal < 50000) {
@@ -129,19 +146,18 @@ const cekWithdraw = async (req, res, next) => {
   if (nominal <= 0 || isNaN(nominal)) {
     return resFailed(res, 400, "error", "Nominal tidak valid");
   }
+  if (totalDanaUser < nominal) {
+    return resFailed(res, 400, "error", "Total dana deposit anda tidak cukup");
+  }
   next();
 };
 
 const cekDepo = async (req, res, next) => {
-  const { userId, nominal, tgl, keterangan } = req.body;
+  const { nominal, tgl, keterangan } = req.body;
 
   const bukti_transaksi = req.file;
   if (!bukti_transaksi) {
     return resFailed(res, 500, "error", "mohon sertakan bukti transaksi");
-  }
-
-  if (!userId) {
-    return resFailed(res, 500, "error", "userId tidak boleh kosong");
   }
 
   if (!nominal) {
@@ -155,16 +171,6 @@ const cekDepo = async (req, res, next) => {
   if (!keterangan) {
     return resFailed(res, 500, "error", "mohon sertakan keterangan transaksi");
   }
-
-  const keluar = await findAllTransaksiPengeluaran();
-  const masuk = await findAllTransaksiPemasukan();
-  const totalDanaMasuk = masuk.map((n) => n.nominal);
-  const totalDanaKeluar = keluar.map((n) => n.nominal);
-  const totalMasuk = totalDanaMasuk.reduce((acc, curr) => acc + curr, 0);
-  const totalKeluar = totalDanaKeluar.reduce((acc, curr) => acc + curr, 0);
-  const total = totalMasuk - totalKeluar;
-  console.log(totalKeluar);
-  console.log(totalMasuk);
 
   if (nominal <= 0 || isNaN(nominal)) {
     return resFailed(res, 400, "error", "Angka tidak valid");

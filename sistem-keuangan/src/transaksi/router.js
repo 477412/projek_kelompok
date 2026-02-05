@@ -11,6 +11,7 @@ const {
   withdrawMoney,
   showDataPemasukan,
   showDataPengeluaran,
+  infoDepositById,
 } = require("./controller");
 const router = express.Router();
 const upload = require("../shared/middlewares/upload.js");
@@ -26,6 +27,8 @@ const {
   authJwt,
   authorizeRole,
 } = require("../shared/middlewares/loginAuth.js");
+const { searchTransaksiByUserId } = require("./service.js");
+const { cekId } = require("../shared/middlewares/valUser.js");
 
 router.get(
   "/bendahara/alldata",
@@ -80,7 +83,7 @@ router.get(
 router.post(
   "/deposit",
   authJwt,
-  authorizeRole("bendahara"),
+  authorizeRole("anggota", "bendahara"),
   upload.single("bukti_transaksi"),
   cekDepo,
   createTransaksiAnggota,
@@ -105,5 +108,6 @@ router.get(
   authorizeRole("bendahara"),
   showDataPengeluaran,
 );
+router.get("/riwayat/user/:id", cekId, infoDepositById);
 
 module.exports = router;

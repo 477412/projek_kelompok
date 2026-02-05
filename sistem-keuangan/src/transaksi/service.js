@@ -55,6 +55,24 @@ const searchTransaksiByStatus = async (status) => {
   });
 };
 
+const searchTransaksiByUserIdPemasukan = async (userId) => {
+  return await Transaksi.findAll({
+    where: { userId, status: "pemasukan" },
+  });
+};
+
+const searchTransaksiByUserIdPengeluaran = async (userId) => {
+  return await Transaksi.findAll({
+    where: { userId, status: "pengeluaran" },
+  });
+};
+
+const searchTransaksiByUserId = async (userId) => {
+  return await Transaksi.findAll({
+    where: { userId },
+  });
+};
+
 module.exports = {
   findAllTransaksi,
   findTransaksiById,
@@ -65,4 +83,7 @@ module.exports = {
   searchTransaksiByStatus,
   findAllTransaksiPengeluaran,
   findAllTransaksiPemasukan,
+  searchTransaksiByUserIdPemasukan,
+  searchTransaksiByUserIdPengeluaran,
+  searchTransaksiByUserId,
 };
