@@ -8,13 +8,16 @@ const {
   cariByRole,
   urutBynama,
   urutByEmail,
-} = require("./controller");
+  regisUser,
+} = require("./controller.js");
 const {
   cekId,
   cekTambah,
   cekUpdate,
   cekRole,
   cekSort,
+  cekReg,
+  cekHapus,
 } = require("../shared/middlewares/valUser.js");
 const router = express.Router();
 const upload = require("../shared/middlewares/upload.js");
@@ -31,13 +34,65 @@ router.get(
   authorizeRole("bendahara"),
   getAllUser,
 );
-router.get("/cari/:id", cekId, getUserById);
-router.delete("/hapus/:id", cekId, hapusUser);
-router.post("/tambah", upload.none(), cekTambah, tambahUser);
-router.patch("/ubah/:id", upload.none(), cekUpdate, ubahUser);
+
+router.get(
+  "/cari/:id",
+  authJwt,
+  authorizeRole("bendahara"),
+  cekId,
+  getUserById,
+);
+router.delete(
+  "/hapus/:id",
+  authJwt,
+  authorizeRole("anggota", "bendahara"),
+  cekHapus,
+  hapusUser,
+);
+
+router.post(
+  "/tambah",
+  authJwt,
+  authorizeRole("bendahara"),
+  upload.none(),
+  cekTambah,
+  tambahUser,
+);
+
+router.patch(
+  "/ubah/:id",
+  authJwt,
+  authorizeRole("bendahara"),
+  upload.none(),
+  cekUpdate,
+  ubahUser,
+);
+
 router.post("/auth/login", valLog, loginAuth);
-router.get("/search", cekRole, cariByRole);
-router.get("/sort/nama", cekSort, urutBynama);
-router.get("/sort/email", cekSort, urutByEmail);
+
+router.get("/search", authJwt, authorizeRole("bendahara"), cekRole, cariByRole);
+
+router.get(
+  "/sort/nama",
+  authJwt,
+  authorizeRole("bendahara"),
+  cekSort,
+  urutBynama,
+);
+
+router.get(
+  "/sort/email",
+  authJwt,
+  authorizeRole("bendahara"),
+  cekSort,
+  urutByEmail,
+);
+
+router.post(
+  "/regis",
+  upload.none(),
+  cekReg,
+  regisUser,
+);
 
 module.exports = router;
