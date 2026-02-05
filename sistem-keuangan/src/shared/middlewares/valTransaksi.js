@@ -6,6 +6,8 @@ const {
 } = require("../../transaksi/service");
 const db = require("../../db/models");
 const { resFailed } = require("../helpers/payload");
+const { findUserById, findAllUser } = require("../../user/service");
+const User = db;
 
 const cekIdTransaksi = async (req, res, next) => {
   const id = req.params.id;
@@ -27,9 +29,15 @@ const cekIdTransaksi = async (req, res, next) => {
 const cekBodyTransaksi = async (req, res, next) => {
   const id = req.params.id;
   const { userId, nominal, status, tgl, keterangan } = req.body;
+  const findUserId = await findAllUser();
+  const carii = findUserId.find((data) => data.id === userId);
+  if (!carii) {
+    return resFailed(res, 404, "error", "Userid tidak valid");
+  }
   const findData = await findTransaksiById(id);
 
   let bukti_transaksi = req.file;
+
   if (!bukti_transaksi) {
     bukti_transaksi = findData.bukti_transaksi;
   }

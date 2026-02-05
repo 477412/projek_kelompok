@@ -79,6 +79,8 @@ router.get(
 );
 router.post(
   "/deposit",
+  authJwt,
+  authorizeRole("bendahara"),
   upload.single("bukti_transaksi"),
   cekDepo,
   createTransaksiAnggota,

@@ -32,7 +32,13 @@ const valLog = async (req, res, next) => {
     },
   );
 
-  req.user = user;
+  // benerin ini
+  const body = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  };
+  req.user = body;
   req.token = token;
 
   console.log(req.token);

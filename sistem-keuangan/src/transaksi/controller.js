@@ -8,6 +8,7 @@ const {
   searchTransaksiByStatus,
   findAllTransaksiPengeluaran,
   findAllTransaksiPemasukan,
+  deleteTransaksi,
 } = require("./service.js");
 
 const path = require("path");
@@ -69,7 +70,7 @@ const removeTransaksi = async (req, res) => {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-
+    const data = await deleteTransaksi(id);
     return resSuccess(res, 200, "success", "Data dihapus");
   } catch (error) {
     return resFailed(res, 500, "error", error.message);
@@ -159,8 +160,8 @@ const filterTransaksiByStatus = async (req, res) => {
 
 const createTransaksiAnggota = async (req, res) => {
   try {
-    const { userId, nominal, tgl, keterangan } = req.body;
-
+    const { nominal, tgl, keterangan } = req.body;
+    const userId = req.user.body.id
     let bukti_transaksi = null;
     if (req.file) {
       bukti_transaksi = path.basename(req.file.path);
