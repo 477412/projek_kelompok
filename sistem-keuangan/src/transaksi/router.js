@@ -56,7 +56,6 @@ router.patch(
   authorizeRole("bendahara"),
   cekIdTransaksi,
   upload.single("bukti_transaksi"),
-  cekBodyTransaksi,
   changeDataTransaksi,
 );
 

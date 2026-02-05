@@ -36,35 +36,6 @@ const cekBodyTransaksi = async (req, res, next) => {
   const { userId, nominal, status, tgl, keterangan } = req.body;
   const findUserId = await findAllUser();
   const carii = findUserId.find((data) => data.id === userId);
-  if (!carii) {
-    return resFailed(res, 404, "error", "Userid tidak valid");
-  }
-  const findData = await findTransaksiById(id);
-
-  let bukti_transaksi = req.file;
-
-  if (!bukti_transaksi) {
-    bukti_transaksi = findData.bukti_transaksi;
-  }
-  if (!status) {
-    return resFailed(res, 500, "error", "status tidak boleh kosong");
-  }
-  if (!userId) {
-    return resFailed(res, 500, "error", "userId tidak boleh kosong");
-  }
-
-  if (!nominal) {
-    return resFailed(res, 500, "error", "nominal kosong, mohon isi nominal");
-  }
-
-  if (!tgl) {
-    return resFailed(res, 500, "error", "tanggal tidak boleh kosong");
-  }
-
-  if (!keterangan) {
-    return resFailed(res, 500, "error", "mohon sertakan keterangan transaksi");
-  }
-
   next();
 };
 
